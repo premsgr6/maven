@@ -1,26 +1,38 @@
-node('master') 
+node('master')
 {
-  stage('ContinuousDownload') 
-  {
-     git 'https://github.com/intelliqittrainings/maven.git'
-  }
-  stage('ContnuousBuild')
-  {
-      sh label: '', script: 'mvn package'
-  }
-  stage('ContinuousDeployment')
-  {
-      sh label: '', script: 'scp /home/ubuntu/.jenkins/workspace/ScriptedPipeline/webapp/target/webapp.war ubuntu@172.31.88.210:/var/lib/tomcat8/webapps/qaapp.war'
-  }
-  stage('ContinuousTesting')
-  {
-      git 'https://github.com/selenium-saikrishna/FunctionalTesting.git'
-      sh label: '', script: 'java -jar /home/ubuntu/.jenkins/workspace/ScriptedPipeline/testing.jar'
-  }
-  stage('ContinuosDelivery')
-  {
-      
-      input message: 'Waiting for Approval from the Delivery Manager!', submitter: 'srinivas'
-       sh label: '', script: 'scp /home/ubuntu/.jenkins/workspace/ScriptedPipeline/webapp/target/webapp.war ubuntu@172.31.89.71:/var/lib/tomcat8/webapps/prodapp.war'
-  }
+    
+    stage('GITSCM')
+    {
+    // CLONING THE GIT REPOSITORY
+      git credentialsId: 'GIT', url: 'https://github.com/premsgr6/maven.git'
+    }
+    
+    stage('Continous integration')
+    {
+      // building the artifact using maven
+    withMaven(jdk: 'java', maven: 'maven') {
+       sh label: '', script: 'mvn package'
+    }
+    }
+    
+    stage('Continous Deployment')
+    {
+      // Deploying the artifact into QA server into tomcat server
+        sh label: '', script: 'scp /root/.jenkins/workspace/test3/webapp/target/webapp.war ubuntu@10.3.1.121:/opt/tomcat/webapps/qaapp.war'
+    }
+   
+   stage('Contionous Testing')
+   {
+     // cloning selenium functional testing and even can add test manager to approve the stage adding input mesg after git
+      git credentialsId: 'GIT', url: 'https://github.com/premsgr6/FunctionalTesting.git'
+       sh label: '', script: 'java -jar  /root/.jenkins/workspace/test3/testing.jar'
+   }
+ 
+   stage('Continous Delivery')
+   {
+     //production manager sagar need to approve at this stage
+       input message: 'waiting for approvel from delivery manager', submitter: 'sagar'
+       sh label: '', script: 'scp /root/.jenkins/workspace/test3/webapp/target/webapp.war ubuntu@10.3.1.16:/opt/tomcat8/webapps/prodapp.war' 
+   }
+ 
 }
