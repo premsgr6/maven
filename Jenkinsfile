@@ -10,8 +10,8 @@ node('master')
     stage('Continous integration')
     {
       // building the artifact using maven
-    withMaven(jdk: 'java', maven: 'maven') {
-       sh label: '', script: 'mvn package'
+        withMaven(jdk: 'java', maven: 'maven') {
+        sh label: '', script: 'mvn package'
     }
     }
     
