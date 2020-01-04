@@ -34,5 +34,6 @@ node('master')
        input message: 'waiting for approvel from delivery manager', submitter: 'sagar'
        sh label: '', script: 'scp /root/.jenkins/workspace/test3/webapp/target/webapp.war ubuntu@10.3.1.16:/opt/tomcat8/webapps/prodapp.war' 
    }
+    
  
 }
