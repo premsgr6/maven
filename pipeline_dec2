@@ -1,4 +1,5 @@
-
+// created declerative pipeline using maven bild tool with git repo maven(intelliqit) , in cont.delivery DELIVERY MANAGER NEEDS TO APPROVE
+// for procceed into prodction
 
 pipeline
 {
