@@ -1,0 +1,49 @@
+
+
+pipeline
+{
+    agent any
+    stages{
+        stage('GIT')
+        {
+            steps
+            {
+                git credentialsId: 'GIT', url: 'https://github.com/premsgr6/hello-world.git'
+            }
+        }
+        stage(' ontinous Build')
+        {
+            steps
+            {
+                withMaven(jdk: 'java', maven: 'maven')
+                {
+                    sh label: '', script: 'mvn package'
+                }
+                    
+                }
+            }
+         stage('Continous Deployment')
+         {
+            steps
+            {
+              sh label: '', script: 'scp /root/.jenkins/workspace/declerative2/webapp/target/webapp.war ubuntu@10.3.1.121:/opt/tomcat/webapps/hello1.war'  
+            }
+         }
+         stage('Continous Testing')
+         {
+            steps
+            {
+                git credentialsId: 'GIT', url: 'https://github.com/premsgr6/FunctionalTesting.git'
+                sh label: '', script: 'java -jar /root/.jenkins/workspace/declerative2/testing.jar'
+            }
+         }
+         stage('Continous Delivery')
+         {
+             steps
+             {
+                 input message: 'WAITING FOR APPROVAL DELIVERY MANAGER', submitter: 'sagar'
+                 sh label: '', script: 'scp /root/.jenkins/workspace/declerative2/webapp/target/webapp.war ubuntu@10.3.1.16:/opt/tomcat8/webapps/prodhello1.war'
+             }
+         }
+        }
+    }
