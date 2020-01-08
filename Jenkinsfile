@@ -12,7 +12,7 @@ node('master')
   }
   stage('ContinuousDeployment_Loans')
   {
-     sh label: '', script: 'scp /root/.jenkins/workspace/test3/webapp/target/webapp.war ubuntu@10.3.1.121:/opt/tomcat/webapps/loanapp.war'    
+     sh  label: '', script: 'scp /root/.jenkins/workspace/multibranch_loans/webapp/target/webapp.war ubuntu@10.3.1.121:/opt/tomcat/webapps/loanapp.war'
   }
   
   
