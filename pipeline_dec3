@@ -1,0 +1,60 @@
+//premsgr6/jenkins-example using the git git repo  and its  pipeline declerative job ,post, success, failurs and mail 
+//configuration to team
+
+// declerative pipeline using PREMSGR6/JENKINS-EXAMPLE.GIT
+
+
+
+
+pipeline
+{
+    agent any
+    stages
+    {
+       stage('GIT')
+       {
+        steps
+        {
+            git credentialsId: 'GIT', url: 'https://github.com/premsgr6/jenkins-example.git'
+          }
+        }
+       
+       stage('BUILD')
+       {
+           steps
+           {
+               withMaven(jdk: 'java', maven: 'maven')
+               {
+                   sh label: '', script: 'mvn package'
+               }
+           }
+       }
+       stage('DEPLOYMENT')
+       {
+           steps
+           {
+               sh label: '', script: 'scp /root/.jenkins/workspace/decleartive3/target/jenkins-example-1.0-SNAPSHOT.jar ubuntu@10.3.1.121:/opt/tomcat/webapps/test3.jar'
+           }
+       }
+       stage('TESTING')
+       {
+           steps
+           {
+               git credentialsId: 'GIT', url: 'https://github.com/premsgr6/FunctionalTesting.git'
+               sh label: '', script: 'java -jar /root/.jenkins/workspace/decleartive3/testing.jar'
+           }
+       }
+    }
+    post
+    {
+      success
+      {
+        input message: 'prodection manager  authorisation needed', submitter: 'sagar'
+          sh label: '', script: 'scp /root/.jenkins/workspace/decleartive3/target/jenkins-example-1.0-SNAPSHOT.jar ubuntu@10.3.1.16:/opt/tomcat8/webapps/prodtest3.jar'
+      }
+      failure
+      {
+         mail bcc: '', body: 'jenkins ci failed ', cc: '', from: '', replyTo: '', subject: 'JENKINS CI FAILED', to: 'prem_sgr6@yahoo.co.in' 
+      }
+    }
+}
