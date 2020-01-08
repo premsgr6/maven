@@ -1,0 +1,109 @@
+// declarative pipeline in advanced way exception handling using git repo premsgr6/jenkins-example
+// in this pipeline git repo used premsgr6/jenkins-example
+
+pipeline
+{ 
+    agent any
+    stages
+    {
+        stage('GIT')
+        {
+          steps
+          {
+              script
+              {
+                  try
+                  {
+                      git credentialsId: 'GIT', url: 'https://github.com/premsgr6/jenkins-example.git'
+                  }
+                  catch (Exception e1)
+                  {
+                      mail bcc: '', body: 'jenkins is unable to download the code from git hub', cc: '', from: '', replyTo: '', subject: 'Continous download failed', to: 'git.admin@gmail.com'
+                      exit(1)
+                  }
+              }
+          }
+        }
+        stage('BUILD')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                     {
+                        withMaven(jdk: 'java', maven: 'maven')
+                         {
+                           sh label: '', script: 'mvn package'
+                    }
+                  }
+                  catch (Exception e2)
+                  {
+                      mail bcc: '', body: 'jenkins is unable to create an artifact', cc: '', from: '', replyTo: '', subject: 'Continous build failed', to: 'dev.admin@gmail.com'
+                      exit(2)
+                    }
+                }
+            }
+        }
+        stage('DEPLOYMENT')
+        {
+          steps
+          {
+              script
+              {
+                  try
+                  {
+                    sh label: '', script: 'scp /root/.jenkins/workspace/declerative4/target/jenkins-example-1.0-SNAPSHOT.jar ubuntu@10.3.1.121:/opt/tomcat/webapps/test4.jar'
+                  }
+                  catch (Exception e3)
+                  {
+                      mail bcc: '', body: 'jenkins is unable to deploy the artifact into the testing servers', cc: '', from: '', replyTo: '', subject: 'Continous deploymrnt failed', to: 'middleware.admin@gmail.com'
+                      exit(3)
+                  }
+              }
+          }
+        }
+        
+        stage('TESTING')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                        git credentialsId: 'GIT', url: 'https://github.com/premsgr6/FunctionalTesting.git'
+                        sh label: '', script: 'java -jar /root/.jenkins/workspace/decleartive3/testing.jar'
+                    }
+                    catch (Exception e4)
+                    {
+                      mail bcc: '', body: 'Functional testing as failed', cc: '', from: '', replyTo: '', subject: 'Continous Testing failed', to: 'testing.admin@gmail.com'
+                      exit(4)  
+                    }
+                }
+            }
+        }
+        
+        stage('DELIVERY')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                        input message: 'prodection manager  authorisation needed', submitter: 'sagar'
+                          sh label: '', script: 'scp /root/.jenkins/workspace/declerative4/target/jenkins-example-1.0-SNAPSHOT.jar ubuntu@10.3.1.16:/opt/tomcat8/webapps/prodtest4.jar'
+                    }
+                     catch (Exception e5)
+                     {
+                        mail bcc: '', body: 'unable to deploy into prod servers', cc: '', from: '', replyTo: '', subject: 'Continous delivery failed', to: 'delivery.admin@gmail.com'
+                         exit(5)
+                        }
+                        
+                    }
+                }
+            }
+        }
+    }
+    
