@@ -2,15 +2,17 @@ node('master')
 {
   stage('ContinuousDownload_Loans') 
   {
-    git 'https://github.com/intelliqittrainings/maven.git'
+    git credentialsId: 'GIT', url: 'https://github.com/premsgr6/maven.git'
   } 
   stage('ContinuousBuild_Loan')
   {
-      sh label: '', script: 'mvn package'
+      withMaven(jdk: 'java', maven: 'maven') {
+        sh label: '', script: 'mvn package'
+    }
   }
   stage('ContinuousDeployment_Loans')
   {
-     sh label: '', script: 'scp /home/ubuntu/.jenkins/workspace/ScriptedPipeline@2/webapp/target/webapp.war ubuntu@172.31.36.247:/var/lib/tomcat8/webapps/testwebapp.war'      
+     sh label: '', script: 'scp /root/.jenkins/workspace/test3/webapp/target/webapp.war ubuntu@10.3.1.121:/opt/tomcat/webapps/loanapp.war'    
   }
   
   
