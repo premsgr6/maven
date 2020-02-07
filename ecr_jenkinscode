@@ -1,0 +1,49 @@
+//AWS CREDENTIALS REQUIRED -- PLUGINS CLOUDBEE DOCKER BUILS AND PUBLISH  & AMAZON ECR NEED TO INSTALL
+// CREATE A ECR REPO AS IN CODE IS NODEAPP
+
+pipeline {
+   agent any
+    environment {
+         VERSION = "${BUILD_NUMBER}"
+         PROJECT = 'nodeapp'
+         IMAGE = "$PROJECT:$VERSION"
+         ECRURL = 'https://554433736002.dkr.ecr.us-east-2.amazonaws.com/nodeapp'
+         ECRCRED = 'ecr:us-east-2:aws-key'
+         }
+
+          stages {
+             stage('GetSCM') {
+               steps {
+                 // Get some code from a GitHub repository
+                 git credentialsId: 'GIT-PASSWD', url: 'https://github.com/premsgr6/Login_Docker_alphine.git'
+                 }
+             }
+
+             stage('Image Build') {
+              steps {
+                  script {
+                        docker.build('$IMAGE')
+                  }
+              }
+          }
+
+          stage('Push Image') {
+            steps {
+              script {
+                    docker.withRegistry(ECRURL, ECRCRED)
+                       {
+                         docker.image(IMAGE).push()
+                         }
+                     }  
+                } 
+            }
+         }
+          post
+            { 
+              always
+                 { 
+                     // make sure that the Docker image is removed
+                      sh "docker rmi $IMAGE | true"  
+                   }
+                }
+             }
